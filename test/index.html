@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Talk Time Test</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#0f6b5c">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="robots" content="noindex">
+</head><body>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:400;font-style:normal;font-display:swap;src:url("../fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:700;font-style:normal;font-display:swap;src:url("../fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-weight:600;font-style:normal;font-display:swap;src:url("../fonts/bricolage-grotesque-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-weight:800;font-style:normal;font-display:swap;src:url("../fonts/bricolage-grotesque-latin-800-normal.woff2") format("woff2")}
+/* Layout: topic chips, then one large card that walks through 5 questions (2 short, 2 medium, 1 story). Big type and big buttons so Dad can use it himself. */
+:root{
+  --bg:#eef3f1; --surface:#ffffff; --ink:#15302b; --muted:#52675f; --line:#cddbd5;
+  --accent:#0f6b5c; --accent-ink:#ffffff; --sun:#e8a317; --sun-soft:#fdf1d6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1b19; --surface:#172725; --ink:#e4efeb; --muted:#9db3ab; --line:#2a3f3b;
+  --accent:#4fc2a9; --accent-ink:#0b1a17; --sun:#f2b93b; --sun-soft:#3a2f14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1b19; --surface:#172725; --ink:#e4efeb; --muted:#9db3ab; --line:#2a3f3b;
+  --accent:#4fc2a9; --accent-ink:#0b1a17; --sun:#f2b93b; --sun-soft:#3a2f14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:max(24px,env(safe-area-inset-top,0px)) max(48px,env(safe-area-inset-bottom,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-direction:column;gap:6px}
+header h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,5vw,42px);margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:62ch}
+.week{font-size:14px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--accent)}
+.label{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:0 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:17px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:10px 16px;border-radius:999px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chip .today{font-size:12px;text-transform:uppercase;letter-spacing:.06em;background:var(--sun-soft);color:var(--ink);padding:1px 6px;border-radius:4px;font-weight:700}
+.chip .done{font-size:14px}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:20px;padding:28px clamp(18px,4vw,40px);
+  display:flex;flex-direction:column;gap:18px;min-height:380px}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:15px}
+.tag{background:var(--sun-soft);color:var(--ink);padding:3px 10px;border-radius:6px;font-weight:700;font-size:14px}
+.dots{display:flex;gap:6px;align-items:center}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);background:transparent}
+.dot.on{background:var(--accent)}
+.kind{font-weight:700;color:var(--muted);font-size:15px}
+.q{font-family:var(--display);font-weight:600;font-size:clamp(28px,5.4vw,46px);line-height:1.2;margin:0;text-wrap:balance}
+.starter{border-left:5px solid var(--sun);padding:6px 0 6px 16px;font-size:clamp(21px,3.6vw,28px)}
+.starter .label{margin-bottom:2px}
+.follow{display:flex;flex-direction:column;gap:6px}
+.follow ul{margin:0;padding-left:22px;font-size:20px;display:flex;flex-direction:column;gap:4px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto}
+.btn{font:inherit;font-size:19px;font-weight:700;border-radius:14px;padding:14px 22px;cursor:pointer;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);min-height:56px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 200px}
+.btn.star[aria-pressed="true"]{background:var(--sun-soft);border-color:var(--sun)}
+.btn:disabled{opacity:.45;cursor:default}
+.finish{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.finish p{margin:0;font-size:20px;color:var(--muted)}
+details{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px 20px}
+summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:20px}
+.tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px;margin-top:14px}
+.tips div{min-width:0}
+.tips b{display:block}
+.tips p{margin:2px 0 0;color:var(--muted)}
+.testbar{align-self:flex-start;background:var(--sun-soft);border:1.5px dashed var(--sun);color:var(--ink);font-weight:700;font-size:14px;padding:6px 12px;border-radius:8px}
+footer{color:var(--muted);font-size:14px;max-width:70ch}
+@media (max-width:560px){.tips{grid-template-columns:1fr}.card{min-height:0}}
+@media (prefers-reduced-motion:no-preference){.card.swap{animation:fade .25s ease}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="week" id="week"></span>
+    <div class="testbar">Test page · daily questions for 3 days · not Dad's live link</div>
+    <h1>Talk Time with Dad</h1>
+    <p>Five questions a topic, starting easy and ending with a story. Read the starter line out loud, then finish it in your own words.</p>
+  </header>
+
+  <section>
+    <p class="label">Pick a topic</p>
+    <div class="chips" id="themes"></div>
+  </section>
+
+  <article class="card" id="card" aria-live="polite"></article>
+
+  <details id="tipsBox">
+    <summary>Tips for whoever is chatting with him</summary>
+    <div class="tips">
+      <div><b>Quiet room, face to face</b><p>Turn off the TV. Sit where he can see your face and you can see his.</p></div>
+      <div><b>One question at a time</b><p>Wait at least 10 seconds before helping. Silence is thinking time.</p></div>
+      <div><b>Slow and big</b><p>Remind him to slow down, take a breath first, and say each word fully, whatever his therapist has taught.</p></div>
+      <div><b>Don't finish his sentences</b><p>If you missed a word, ask for just that word again, or ask him to spell or point.</p></div>
+      <div><b>One topic a day</b><p>Five questions takes about 10–15 minutes. Stop early if he is tired.</p></div>
+      <div><b>Real interest</b><p>Respond to what he says, not how he said it. The goal is a real chat.</p></div>
+    </div>
+  </details>
+
+  <footer>Test page: new questions every morning for three days. Each day's questions are saved in a question bank the live updates can reuse.</footer>
+</div>
+
+<!-- QUESTIONS: replaced by the scheduled update. Edit only this JSON. Each topic has exactly 5 questions: 1–2 short answers, 3–4 a sentence or two, 5 a story. -->
+<script id="questions" type="application/json">
+{
+ "label": "Test day 1 of 3 · Sat 24 Oct 2026",
+ "week": "test-2026-10-24",
+ "topics": [
+  {
+   "id": "morning",
+   "name": "Morning & routine",
+   "questions": [
+    {
+     "q": "Shower in the morning or at night?",
+     "starter": "I like to shower…",
+     "followups": [
+      "Hot water or cold?"
+     ]
+    },
+    {
+     "q": "Did you read the newspaper today?",
+     "starter": "Today I read…",
+     "followups": [
+      "Which page do you read first?"
+     ]
+    },
+    {
+     "q": "What is the first thing you do when you wake up?",
+     "starter": "When I wake up, first I…",
+     "followups": [
+      "Has it always been that way?"
+     ]
+    },
+    {
+     "q": "What would make this morning a good one?",
+     "starter": "A good morning would be…",
+     "followups": [
+      "Shall we do that tomorrow?"
+     ]
+    },
+    {
+     "q": "Tell me how you used to get ready for work.",
+     "starter": "Before work, I would…",
+     "followups": [
+      "What did you wear?",
+      "Did you eat at home or outside?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "food",
+   "name": "Food & meals",
+   "questions": [
+    {
+     "q": "Roti canai or nasi lemak?",
+     "starter": "I would choose…",
+     "followups": [
+      "With what curry or sambal?"
+     ]
+    },
+    {
+     "q": "Do you like durian?",
+     "starter": "Durian is…",
+     "followups": [
+      "Which kind is the best?"
+     ]
+    },
+    {
+     "q": "What fruit do you like most?",
+     "starter": "The fruit I like most is…",
+     "followups": [
+      "When is it in season?"
+     ]
+    },
+    {
+     "q": "What would you order at a mamak stall tonight?",
+     "starter": "At the mamak I would order…",
+     "followups": [
+      "Teh tarik or Milo ais?"
+     ]
+    },
+    {
+     "q": "Tell me about a dish Mum makes that you love.",
+     "starter": "Mum makes a very good…",
+     "followups": [
+      "When does she make it?",
+      "What makes hers special?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "family",
+   "name": "Family",
+   "questions": [
+    {
+     "q": "Do you want to see the grandchildren this weekend?",
+     "starter": "This weekend I want to…",
+     "followups": [
+      "What should we do together?"
+     ]
+    },
+    {
+     "q": "Should we look at old family photos?",
+     "starter": "I would like to see…",
+     "followups": [
+      "Which album first?"
+     ]
+    },
+    {
+     "q": "What do you like doing with the grandchildren?",
+     "starter": "With the grandchildren I like to…",
+     "followups": [
+      "Who makes you laugh the most?"
+     ]
+    },
+    {
+     "q": "What did you and Mum do on weekends when you were young?",
+     "starter": "On weekends, Mum and I…",
+     "followups": [
+      "Where did you like to go?"
+     ]
+    },
+    {
+     "q": "Tell me about the day you brought your first child home.",
+     "starter": "When we brought our first baby home…",
+     "followups": [
+      "Where were you living?",
+      "Who cried more?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "weather",
+   "name": "Weather & outside",
+   "questions": [
+    {
+     "q": "Is it windy outside today?",
+     "starter": "Outside it is…",
+     "followups": [
+      "Shall we open the window?"
+     ]
+    },
+    {
+     "q": "Morning walk or evening walk?",
+     "starter": "I prefer to walk in the…",
+     "followups": [
+      "Why that time?"
+     ]
+    },
+    {
+     "q": "What do you like to do on a rainy day?",
+     "starter": "On a rainy day I like to…",
+     "followups": [
+      "Do you like the sound of rain?"
+     ]
+    },
+    {
+     "q": "Which trees or flowers do you like to see outside?",
+     "starter": "I like to see…",
+     "followups": [
+      "Where do they grow?"
+     ]
+    },
+    {
+     "q": "Tell me about a place you went to cool down on a hot day.",
+     "starter": "On hot days I used to go to…",
+     "followups": [
+      "How did you get there?",
+      "What did you eat there?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "memories",
+   "name": "Younger days",
+   "questions": [
+    {
+     "q": "Did you have a bicycle as a boy?",
+     "starter": "As a boy I had…",
+     "followups": [
+      "What colour was it?"
+     ]
+    },
+    {
+     "q": "Did you go to the cinema when you were young?",
+     "starter": "At the cinema I watched…",
+     "followups": [
+      "How much was a ticket?"
+     ]
+    },
+    {
+     "q": "What sweets or snacks did you buy as a child?",
+     "starter": "As a child I bought…",
+     "followups": [
+      "Where did you buy them?"
+     ]
+    },
+    {
+     "q": "What did you want to be when you grew up?",
+     "starter": "I wanted to be…",
+     "followups": [
+      "Why that job?"
+     ]
+    },
+    {
+     "q": "Tell me about your first car.",
+     "starter": "My first car was…",
+     "followups": [
+      "Where did you drive it?",
+      "What happened to it?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "work",
+   "name": "Work life",
+   "questions": [
+    {
+     "q": "Did you wear a uniform to work?",
+     "starter": "At work I wore…",
+     "followups": [
+      "Did you like it?"
+     ]
+    },
+    {
+     "q": "Did you ever work at night?",
+     "starter": "At night I…",
+     "followups": [
+      "How did you stay awake?"
+     ]
+    },
+    {
+     "q": "How did you get your first job?",
+     "starter": "I got my first job by…",
+     "followups": [
+      "How old were you?"
+     ]
+    },
+    {
+     "q": "What tools or machines did you use at work?",
+     "starter": "At work I used…",
+     "followups": [
+      "Which was the hardest to use?"
+     ]
+    },
+    {
+     "q": "Tell me about a funny thing that happened at work.",
+     "starter": "One funny thing at work was…",
+     "followups": [
+      "Do you still laugh about it?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "places",
+   "name": "Places & travel",
+   "questions": [
+    {
+     "q": "Have you been to Cameron Highlands?",
+     "starter": "Cameron Highlands is…",
+     "followups": [
+      "Strawberries or tea?"
+     ]
+    },
+    {
+     "q": "Train or car for a long trip?",
+     "starter": "For a long trip I prefer…",
+     "followups": [
+      "Why?"
+     ]
+    },
+    {
+     "q": "Which town in Malaysia has the best food?",
+     "starter": "The best food is in…",
+     "followups": [
+      "What should we eat there?"
+     ]
+    },
+    {
+     "q": "Where would you like to go for a day trip?",
+     "starter": "For a day trip I would go to…",
+     "followups": [
+      "What would we do there?"
+     ]
+    },
+    {
+     "q": "Tell me how KL looked when you first saw it.",
+     "starter": "When I first saw KL…",
+     "followups": [
+      "What was there before the tall buildings?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "news",
+   "name": "News & TV",
+   "questions": [
+    {
+     "q": "Do you listen to the radio?",
+     "starter": "On the radio I listen to…",
+     "followups": [
+      "Which station?"
+     ]
+    },
+    {
+     "q": "News on TV or on the phone?",
+     "starter": "I get my news from…",
+     "followups": [
+      "What time do you watch?"
+     ]
+    },
+    {
+     "q": "What sport do you enjoy watching most?",
+     "starter": "I enjoy watching…",
+     "followups": [
+      "Who do you support?"
+     ]
+    },
+    {
+     "q": "Which old movie would you watch again?",
+     "starter": "I would watch…",
+     "followups": [
+      "Who was the star?"
+     ]
+    },
+    {
+     "q": "Tell me about a big match you remember watching.",
+     "starter": "The match I remember was…",
+     "followups": [
+      "Where did you watch it?",
+      "Who won?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hobbies",
+   "name": "Hobbies",
+   "questions": [
+    {
+     "q": "Do you like gardening?",
+     "starter": "Gardening is…",
+     "followups": [
+      "What would you plant?"
+     ]
+    },
+    {
+     "q": "Chess or carrom?",
+     "starter": "I would rather play…",
+     "followups": [
+      "Are you good at it?"
+     ]
+    },
+    {
+     "q": "What music would you like to listen to now?",
+     "starter": "Now I would like to hear…",
+     "followups": [
+      "Shall we play it?"
+     ]
+    },
+    {
+     "q": "Did you ever go fishing?",
+     "starter": "When I went fishing…",
+     "followups": [
+      "What did you catch?"
+     ]
+    },
+    {
+     "q": "Tell me how to make a good cup of kopi.",
+     "starter": "To make good kopi, you…",
+     "followups": [
+      "How much sugar?",
+      "Condensed milk or evaporated?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "festivals",
+   "name": "Festivals",
+   "questions": [
+    {
+     "q": "Is Deepavali on 8 November this year?",
+     "starter": "Deepavali this year is…",
+     "followups": [
+      "Will we visit an open house?"
+     ]
+    },
+    {
+     "q": "Do you like Deepavali sweets?",
+     "starter": "My favourite Deepavali sweet is…",
+     "followups": [
+      "Murukku or laddu?"
+     ]
+    },
+    {
+     "q": "What do you like about open houses?",
+     "starter": "At open houses I like…",
+     "followups": [
+      "What food do you look for first?"
+     ]
+    },
+    {
+     "q": "How should we decorate the house for the next festival?",
+     "starter": "We should decorate with…",
+     "followups": [
+      "Lights or flowers?"
+     ]
+    },
+    {
+     "q": "Tell me about the best open house you went to.",
+     "starter": "The best open house was…",
+     "followups": [
+      "What did you eat?",
+      "What did you wear?"
+     ]
+    }
+   ]
+  }
+ ],
+ "bank": [
+  {
+   "topic": "morning",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Shower in the morning or at night?",
+   "starter": "I like to shower…",
+   "followups": [
+    "Hot water or cold?"
+   ]
+  },
+  {
+   "topic": "morning",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Did you read the newspaper today?",
+   "starter": "Today I read…",
+   "followups": [
+    "Which page do you read first?"
+   ]
+  },
+  {
+   "topic": "morning",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What is the first thing you do when you wake up?",
+   "starter": "When I wake up, first I…",
+   "followups": [
+    "Has it always been that way?"
+   ]
+  },
+  {
+   "topic": "morning",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "What would make this morning a good one?",
+   "starter": "A good morning would be…",
+   "followups": [
+    "Shall we do that tomorrow?"
+   ]
+  },
+  {
+   "topic": "morning",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me how you used to get ready for work.",
+   "starter": "Before work, I would…",
+   "followups": [
+    "What did you wear?",
+    "Did you eat at home or outside?"
+   ]
+  },
+  {
+   "topic": "food",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Roti canai or nasi lemak?",
+   "starter": "I would choose…",
+   "followups": [
+    "With what curry or sambal?"
+   ]
+  },
+  {
+   "topic": "food",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Do you like durian?",
+   "starter": "Durian is…",
+   "followups": [
+    "Which kind is the best?"
+   ]
+  },
+  {
+   "topic": "food",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What fruit do you like most?",
+   "starter": "The fruit I like most is…",
+   "followups": [
+    "When is it in season?"
+   ]
+  },
+  {
+   "topic": "food",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "What would you order at a mamak stall tonight?",
+   "starter": "At the mamak I would order…",
+   "followups": [
+    "Teh tarik or Milo ais?"
+   ]
+  },
+  {
+   "topic": "food",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about a dish Mum makes that you love.",
+   "starter": "Mum makes a very good…",
+   "followups": [
+    "When does she make it?",
+    "What makes hers special?"
+   ]
+  },
+  {
+   "topic": "family",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Do you want to see the grandchildren this weekend?",
+   "starter": "This weekend I want to…",
+   "followups": [
+    "What should we do together?"
+   ]
+  },
+  {
+   "topic": "family",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Should we look at old family photos?",
+   "starter": "I would like to see…",
+   "followups": [
+    "Which album first?"
+   ]
+  },
+  {
+   "topic": "family",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What do you like doing with the grandchildren?",
+   "starter": "With the grandchildren I like to…",
+   "followups": [
+    "Who makes you laugh the most?"
+   ]
+  },
+  {
+   "topic": "family",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "What did you and Mum do on weekends when you were young?",
+   "starter": "On weekends, Mum and I…",
+   "followups": [
+    "Where did you like to go?"
+   ]
+  },
+  {
+   "topic": "family",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about the day you brought your first child home.",
+   "starter": "When we brought our first baby home…",
+   "followups": [
+    "Where were you living?",
+    "Who cried more?"
+   ]
+  },
+  {
+   "topic": "weather",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Is it windy outside today?",
+   "starter": "Outside it is…",
+   "followups": [
+    "Shall we open the window?"
+   ]
+  },
+  {
+   "topic": "weather",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Morning walk or evening walk?",
+   "starter": "I prefer to walk in the…",
+   "followups": [
+    "Why that time?"
+   ]
+  },
+  {
+   "topic": "weather",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What do you like to do on a rainy day?",
+   "starter": "On a rainy day I like to…",
+   "followups": [
+    "Do you like the sound of rain?"
+   ]
+  },
+  {
+   "topic": "weather",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "Which trees or flowers do you like to see outside?",
+   "starter": "I like to see…",
+   "followups": [
+    "Where do they grow?"
+   ]
+  },
+  {
+   "topic": "weather",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about a place you went to cool down on a hot day.",
+   "starter": "On hot days I used to go to…",
+   "followups": [
+    "How did you get there?",
+    "What did you eat there?"
+   ]
+  },
+  {
+   "topic": "memories",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Did you have a bicycle as a boy?",
+   "starter": "As a boy I had…",
+   "followups": [
+    "What colour was it?"
+   ]
+  },
+  {
+   "topic": "memories",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Did you go to the cinema when you were young?",
+   "starter": "At the cinema I watched…",
+   "followups": [
+    "How much was a ticket?"
+   ]
+  },
+  {
+   "topic": "memories",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What sweets or snacks did you buy as a child?",
+   "starter": "As a child I bought…",
+   "followups": [
+    "Where did you buy them?"
+   ]
+  },
+  {
+   "topic": "memories",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "What did you want to be when you grew up?",
+   "starter": "I wanted to be…",
+   "followups": [
+    "Why that job?"
+   ]
+  },
+  {
+   "topic": "memories",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about your first car.",
+   "starter": "My first car was…",
+   "followups": [
+    "Where did you drive it?",
+    "What happened to it?"
+   ]
+  },
+  {
+   "topic": "work",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Did you wear a uniform to work?",
+   "starter": "At work I wore…",
+   "followups": [
+    "Did you like it?"
+   ]
+  },
+  {
+   "topic": "work",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Did you ever work at night?",
+   "starter": "At night I…",
+   "followups": [
+    "How did you stay awake?"
+   ]
+  },
+  {
+   "topic": "work",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "How did you get your first job?",
+   "starter": "I got my first job by…",
+   "followups": [
+    "How old were you?"
+   ]
+  },
+  {
+   "topic": "work",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "What tools or machines did you use at work?",
+   "starter": "At work I used…",
+   "followups": [
+    "Which was the hardest to use?"
+   ]
+  },
+  {
+   "topic": "work",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about a funny thing that happened at work.",
+   "starter": "One funny thing at work was…",
+   "followups": [
+    "Do you still laugh about it?"
+   ]
+  },
+  {
+   "topic": "places",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Have you been to Cameron Highlands?",
+   "starter": "Cameron Highlands is…",
+   "followups": [
+    "Strawberries or tea?"
+   ]
+  },
+  {
+   "topic": "places",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Train or car for a long trip?",
+   "starter": "For a long trip I prefer…",
+   "followups": [
+    "Why?"
+   ]
+  },
+  {
+   "topic": "places",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "Which town in Malaysia has the best food?",
+   "starter": "The best food is in…",
+   "followups": [
+    "What should we eat there?"
+   ]
+  },
+  {
+   "topic": "places",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "Where would you like to go for a day trip?",
+   "starter": "For a day trip I would go to…",
+   "followups": [
+    "What would we do there?"
+   ]
+  },
+  {
+   "topic": "places",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me how KL looked when you first saw it.",
+   "starter": "When I first saw KL…",
+   "followups": [
+    "What was there before the tall buildings?"
+   ]
+  },
+  {
+   "topic": "news",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Do you listen to the radio?",
+   "starter": "On the radio I listen to…",
+   "followups": [
+    "Which station?"
+   ]
+  },
+  {
+   "topic": "news",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "News on TV or on the phone?",
+   "starter": "I get my news from…",
+   "followups": [
+    "What time do you watch?"
+   ]
+  },
+  {
+   "topic": "news",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What sport do you enjoy watching most?",
+   "starter": "I enjoy watching…",
+   "followups": [
+    "Who do you support?"
+   ]
+  },
+  {
+   "topic": "news",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "Which old movie would you watch again?",
+   "starter": "I would watch…",
+   "followups": [
+    "Who was the star?"
+   ]
+  },
+  {
+   "topic": "news",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about a big match you remember watching.",
+   "starter": "The match I remember was…",
+   "followups": [
+    "Where did you watch it?",
+    "Who won?"
+   ]
+  },
+  {
+   "topic": "hobbies",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Do you like gardening?",
+   "starter": "Gardening is…",
+   "followups": [
+    "What would you plant?"
+   ]
+  },
+  {
+   "topic": "hobbies",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Chess or carrom?",
+   "starter": "I would rather play…",
+   "followups": [
+    "Are you good at it?"
+   ]
+  },
+  {
+   "topic": "hobbies",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What music would you like to listen to now?",
+   "starter": "Now I would like to hear…",
+   "followups": [
+    "Shall we play it?"
+   ]
+  },
+  {
+   "topic": "hobbies",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "Did you ever go fishing?",
+   "starter": "When I went fishing…",
+   "followups": [
+    "What did you catch?"
+   ]
+  },
+  {
+   "topic": "hobbies",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me how to make a good cup of kopi.",
+   "starter": "To make good kopi, you…",
+   "followups": [
+    "How much sugar?",
+    "Condensed milk or evaporated?"
+   ]
+  },
+  {
+   "topic": "festivals",
+   "slot": 1,
+   "from": "test day 1 (24 Oct)",
+   "q": "Is Deepavali on 8 November this year?",
+   "starter": "Deepavali this year is…",
+   "followups": [
+    "Will we visit an open house?"
+   ]
+  },
+  {
+   "topic": "festivals",
+   "slot": 2,
+   "from": "test day 1 (24 Oct)",
+   "q": "Do you like Deepavali sweets?",
+   "starter": "My favourite Deepavali sweet is…",
+   "followups": [
+    "Murukku or laddu?"
+   ]
+  },
+  {
+   "topic": "festivals",
+   "slot": 3,
+   "from": "test day 1 (24 Oct)",
+   "q": "What do you like about open houses?",
+   "starter": "At open houses I like…",
+   "followups": [
+    "What food do you look for first?"
+   ]
+  },
+  {
+   "topic": "festivals",
+   "slot": 4,
+   "from": "test day 1 (24 Oct)",
+   "q": "How should we decorate the house for the next festival?",
+   "starter": "We should decorate with…",
+   "followups": [
+    "Lights or flowers?"
+   ]
+  },
+  {
+   "topic": "festivals",
+   "slot": 5,
+   "from": "test day 1 (24 Oct)",
+   "q": "Tell me about the best open house you went to.",
+   "starter": "The best open house was…",
+   "followups": [
+    "What did you eat?",
+    "What did you wear?"
+   ]
+  }
+ ],
+ "recent": []
+}
+</script>
+
+<script>
+// ---- usage counter (GoatCounter: no cookies, no personal data) ----
+const GOATCOUNTER = "GOATCOUNTER_CODE";   // set to the GoatCounter site code
+const who = (() => { try { const u = new URLSearchParams(location.search).get("u");
+  if (u) localStorage.setItem("talkWho", u.replace(/[^a-z0-9]/gi,"").slice(0,12).toLowerCase());
+  return localStorage.getItem("talkWho") || "anon"; } catch(e){ return "anon" } })();
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40) }
+const queued = [];
+function track(name, title){
+  const ev = {path: "test-" + who + "-" + name, title: title || name, event: true};
+  if (window.goatcounter && window.goatcounter.count) window.goatcounter.count(ev); else queued.push(ev);
+}
+if (!/^GOATCOUNTER_/.test(GOATCOUNTER)) {
+  window.goatcounter = {no_onload: true};
+  const s = document.createElement("script"); s.async = true; s.src = "https://gc.zgo.at/count.js";
+  s.dataset.goatcounter = "https://" + GOATCOUNTER + ".goatcounter.com/count";
+  s.onload = () => { try { window.goatcounter.count({path: "test-" + who + "-open", title: "Opened Talk Time", event: true}); queued.splice(0).forEach(e => window.goatcounter.count(e)); } catch(e){} };
+  document.head.appendChild(s);
+}
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(()=>{}));
+
+const DATA = JSON.parse(document.getElementById("questions").textContent);
+const KINDS = ["Short answer","Short answer","A sentence or two","A sentence or two","Tell a story"];
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d }catch(e){ return d } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} }
+};
+let starred = store.get("talkStarred2",{});
+let done = store.get("talkDone",{});           // { "<week>|<topic>": true }
+if (done._week !== DATA.week) done = {_week: DATA.week};
+
+const dayIndex = Math.floor((Date.now() + 8*3600e3) / 86400e3); // days, KL time
+const todayTopic = DATA.topics[dayIndex % DATA.topics.length].id;
+const favTopic = {id:"fav", name:"★ Favourites"};
+
+let topic = todayTopic, pos = 0, showFollow = false;
+
+function questionsFor(id){
+  if (id === "fav") return Object.values(starred);
+  const t = DATA.topics.find(t => t.id === id);
+  return t ? t.questions.map((q,i) => ({...q, topic:t.name, kind:KINDS[i]})) : [];
+}
+function keyOf(q){ return q.topic + "|" + q.q }
+
+function renderThemes(){
+  const box = $("themes"); box.innerHTML = "";
+  [...DATA.topics, favTopic].forEach(t => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.id = "th-" + t.id;
+    b.setAttribute("aria-pressed", t.id === topic);
+    const name = document.createElement("span"); name.textContent = t.name; b.appendChild(name);
+    if (t.id === todayTopic){ const s=document.createElement("span"); s.className="today"; s.textContent="Today"; b.appendChild(s) }
+    if (done[DATA.week+"|"+t.id]){ const s=document.createElement("span"); s.className="done"; s.textContent="✓"; s.setAttribute("aria-label","done this week"); b.appendChild(s) }
+    b.onclick = () => { track('topic-'+t.id); topic = t.id; pos = 0; showFollow = false; renderThemes(); render(); };
+    box.appendChild(b);
+  });
+}
+
+function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e }
+
+function render(){
+  const card = $("card"); card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+  card.innerHTML = "";
+  const qs = questionsFor(topic);
+
+  if (!qs.length){
+    card.appendChild(el("h2","q","No favourites yet."));
+    card.appendChild(el("p",null,"Tap “He liked this one” on any question to keep it here."));
+    return;
+  }
+
+  if (pos >= qs.length){
+    if (topic !== "fav"){ if(!done[DATA.week+"|"+topic]) track('finish-'+topic); done[DATA.week+"|"+topic] = true; store.set("talkDone",done); renderThemes(); }
+    const f = el("div","finish");
+    f.appendChild(el("h2","q","Well done! That's all five."));
+    f.appendChild(el("p",null,"Pick another topic tomorrow, or go again now if he's enjoying it."));
+    const again = el("button","btn","Start this topic again"); again.id="again";
+    again.onclick = () => { pos = 0; render(); };
+    f.appendChild(again);
+    card.appendChild(f);
+    return;
+  }
+
+  const q = qs[pos];
+  const meta = el("div","meta");
+  meta.appendChild(el("span","tag",q.topic));
+  const right = el("div","dots");
+  if (topic !== "fav"){
+    qs.forEach((_,i) => right.appendChild(el("span","dot"+(i<=pos?" on":""))));
+    right.setAttribute("aria-label",`Question ${pos+1} of ${qs.length}`);
+  } else right.appendChild(el("span","kind",`${pos+1} of ${qs.length}`));
+  meta.appendChild(right);
+  card.appendChild(meta);
+
+  card.appendChild(el("span","kind",`Question ${pos+1} · ${q.kind}`));
+  card.appendChild(el("h2","q",q.q));
+  const st = el("div","starter"); st.appendChild(el("p","label","Read it, then finish it")); st.appendChild(el("div",null,q.starter));
+  card.appendChild(st);
+
+  if (showFollow){
+    const f = el("div","follow"); f.appendChild(el("p","label","Keep it going"));
+    const ul = el("ul"); (q.followups||[]).forEach(x => ul.appendChild(el("li",null,x))); f.appendChild(ul);
+    card.appendChild(f);
+  }
+
+  const a = el("div","actions");
+  const back = el("button","btn","Back"); back.id="back"; back.disabled = pos===0;
+  back.onclick = () => { pos--; showFollow=false; render(); };
+  const next = el("button","btn primary", pos===qs.length-1 ? "Finish" : "Next question"); next.id="next";
+  next.onclick = () => { pos++; showFollow=false; render(); };
+  const more = el("button","btn", showFollow ? "Hide follow‑ups" : "Follow‑up ideas"); more.id="more";
+  more.onclick = () => { showFollow = !showFollow; render(); };
+  const on = !!starred[keyOf(q)];
+  const star = el("button","btn star",(on?"★":"☆")+" He liked this one"); star.id="star"; star.setAttribute("aria-pressed",on);
+  star.onclick = () => {
+    if (starred[keyOf(q)]) delete starred[keyOf(q)];
+    else { track('like-'+(DATA.topics.find(t=>t.name===q.topic)||{id:'fav'}).id+'-'+slug(q.q), q.q); } if(!on) starred[keyOf(q)] = {q:q.q, starter:q.starter, followups:q.followups, topic:q.topic, kind:q.kind};
+    store.set("talkStarred2",starred);
+    if (topic==="fav" && pos >= Object.keys(starred).length) pos = Math.max(0,pos-1);
+    render();
+  };
+  a.append(back,next,more,star);
+  card.appendChild(a);
+}
+
+$("week").textContent = DATA.label || ("Questions for the week of " + DATA.week);
+renderThemes(); render();
+</script>
+
+</body></html>
