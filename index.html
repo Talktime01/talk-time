@@ -108,66 +108,436 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
 {
  "week": "19 Oct 2026",
  "topics": [
-  {"id":"morning","name":"Morning & routine","questions":[
-   {"q":"Did you sleep well last night?","starter":"Last night I slept…","followups":["What woke you up?","Do you dream much?"]},
-   {"q":"Tea or coffee this morning?","starter":"This morning I drank…","followups":["How do you like it made?","Kopi‑O or with milk?"]},
-   {"q":"What did you have for breakfast?","starter":"For breakfast I had…","followups":["Was it good?","What is your favourite breakfast?"]},
-   {"q":"What would you like to do today?","starter":"Today I would like to…","followups":["What time should we do it?","Who should come along?"]},
-   {"q":"Tell me about your mornings when you were working.","starter":"When I was working, every morning I…","followups":["What time did you leave home?","How did you get to work?"]}]},
-  {"id":"food","name":"Food & meals","questions":[
-   {"q":"Rice or noodles for lunch?","starter":"For lunch I want…","followups":["Why that one?","Spicy or not?"]},
-   {"q":"Is this too salty?","starter":"I think it is…","followups":["What would make it better?"]},
-   {"q":"What is your favourite hawker food?","starter":"My favourite hawker food is…","followups":["Where is the best stall?","When did you last have it?"]},
-   {"q":"What should we cook for dinner?","starter":"For dinner we should cook…","followups":["What do we need to buy?","Where should we buy it?"]},
-   {"q":"How do you make your favourite dish?","starter":"To make it, first you…","followups":["What is the secret ingredient?","Can you teach me to make it?"]}]},
-  {"id":"family","name":"Family","questions":[
-   {"q":"Have you spoken to the grandchildren this week?","starter":"This week I spoke to…","followups":["What did they tell you?"]},
-   {"q":"Should we call someone today?","starter":"Today we should call…","followups":["What do you want to tell them?"]},
-   {"q":"What were we like as children?","starter":"When you were small, you were…","followups":["Who was the noisiest?","What did we argue about?"]},
-   {"q":"Who in the family is most like you?","starter":"The one most like me is…","followups":["In what way?"]},
-   {"q":"Tell me about your wedding day.","starter":"On our wedding day…","followups":["Where was it?","What food did you serve?"]}]},
-  {"id":"weather","name":"Weather & outside","questions":[
-   {"q":"Is it hot today?","starter":"Today it feels…","followups":["Do you want the fan on?"]},
-   {"q":"Do you think it will rain?","starter":"I think it will…","followups":["Should we bring an umbrella?"]},
-   {"q":"What can you see out of the window?","starter":"Outside I can see…","followups":["What colour is it?","Is it busy out there?"]},
-   {"q":"Where would you like to go for a walk?","starter":"I would like to walk to…","followups":["What do you like about it?"]},
-   {"q":"Tell me about the worst storm or flood you remember.","starter":"The worst storm I remember was…","followups":["What did you do?","How long did it last?"]}]},
-  {"id":"memories","name":"Younger days","questions":[
-   {"q":"Did you like school?","starter":"At school I was…","followups":["What was your best subject?"]},
-   {"q":"Did you ever ride a motorbike?","starter":"I rode a…","followups":["Where did you ride it?"]},
-   {"q":"What was your first job?","starter":"My first job was…","followups":["How much did it pay?","Did you like it?"]},
-   {"q":"What music did you like when you were young?","starter":"When I was young I liked…","followups":["Can you hum a bit?","Who was your favourite singer?"]},
-   {"q":"How did you meet Mum?","starter":"I met your mum when…","followups":["What did you notice first?","Where was your first outing?"]}]},
-  {"id":"work","name":"Work life","questions":[
-   {"q":"Did you enjoy your work?","starter":"I enjoyed it because…","followups":["What was the best part?"]},
-   {"q":"Did you work in an office or outside?","starter":"I worked…","followups":["Which did you prefer?"]},
-   {"q":"What did a normal working day look like?","starter":"On a normal day I would…","followups":["What time did you finish?"]},
-   {"q":"What was the hardest part of your job?","starter":"The hardest part was…","followups":["How did you manage it?"]},
-   {"q":"What is the proudest thing you did at work?","starter":"I was proud when…","followups":["Who else knew about it?","How did it feel?"]}]},
-  {"id":"places","name":"Places & travel","questions":[
-   {"q":"Have you been to Penang?","starter":"I have been to…","followups":["When was that?"]},
-   {"q":"Beach or hills?","starter":"I prefer…","followups":["Why?"]},
-   {"q":"Where is your favourite place in KL?","starter":"My favourite place is…","followups":["How has it changed?"]},
-   {"q":"Where did you take us for holidays when we were small?","starter":"For holidays we went to…","followups":["How did you get there?"]},
-   {"q":"Tell me about the best trip you ever took.","starter":"The best trip I took was…","followups":["What did you eat there?","Would you go back?"]}]},
-  {"id":"news","name":"News & TV","questions":[
-   {"q":"Did you watch the news today?","starter":"Today on the news…","followups":["Was it good news or bad?"]},
-   {"q":"Football or badminton?","starter":"I like watching…","followups":["Who is your favourite player?"]},
-   {"q":"What is your favourite TV programme?","starter":"My favourite programme is…","followups":["What happened last episode?"]},
-   {"q":"What did you watch on TV when you were young?","starter":"When I was young we watched…","followups":["Which programme was the best?"]},
-   {"q":"Explain how life was before mobile phones.","starter":"Before mobile phones, we…","followups":["What was better back then?"]}]},
-  {"id":"hobbies","name":"Hobbies","questions":[
-   {"q":"Do you want to play a game later?","starter":"Later I want to play…","followups":["Who should join?"]},
-   {"q":"Did you water the plants?","starter":"The plants are…","followups":["Which one is your favourite?"]},
-   {"q":"What hobby did you enjoy most?","starter":"The hobby I enjoyed most was…","followups":["How did you start?"]},
-   {"q":"What would you like to learn?","starter":"I would like to learn…","followups":["Who could teach you?"]},
-   {"q":"Explain the rules of a game you know well.","starter":"In this game, you…","followups":["How do you win?","Can you teach me?"]}]},
-  {"id":"festivals","name":"Festivals","questions":[
-   {"q":"Which festival is coming up next?","starter":"The next festival is…","followups":["Are we visiting anyone?"]},
-   {"q":"Do you like fireworks?","starter":"Fireworks are…","followups":["Where did you watch them?"]},
-   {"q":"What do you like to eat at festival time?","starter":"At festival time I like…","followups":["Who makes it best?"]},
-   {"q":"Who would you like to visit for the next celebration?","starter":"I would like to visit…","followups":["What will you bring?"]},
-   {"q":"How were festivals celebrated when you were a child?","starter":"When I was a child, we…","followups":["What did you wear?","What did you get as a gift?"]}]}
+  {
+   "id": "morning",
+   "name": "Morning & routine",
+   "questions": [
+    {
+     "q": "Did you sleep well last night?",
+     "starter": "Last night I slept…",
+     "followups": [
+      "What woke you up?",
+      "Do you dream much?"
+     ]
+    },
+    {
+     "q": "Tea or coffee this morning?",
+     "starter": "This morning I drank…",
+     "followups": [
+      "How do you like it made?",
+      "Kopi‑O or with milk?"
+     ]
+    },
+    {
+     "q": "What did you have for breakfast?",
+     "starter": "For breakfast I had…",
+     "followups": [
+      "Was it good?",
+      "What is your favourite breakfast?"
+     ]
+    },
+    {
+     "q": "What would you like to do today?",
+     "starter": "Today I would like to…",
+     "followups": [
+      "What time should we do it?",
+      "Who should come along?"
+     ]
+    },
+    {
+     "q": "Tell me about your mornings when you were working.",
+     "starter": "When I was working, every morning I…",
+     "followups": [
+      "What time did you leave home?",
+      "How did you get to work?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "food",
+   "name": "Food & meals",
+   "questions": [
+    {
+     "q": "Rice or noodles for lunch?",
+     "starter": "For lunch I want…",
+     "followups": [
+      "Why that one?",
+      "Spicy or not?"
+     ]
+    },
+    {
+     "q": "Is this too salty?",
+     "starter": "I think it is…",
+     "followups": [
+      "What would make it better?"
+     ]
+    },
+    {
+     "q": "What is your favourite hawker food?",
+     "starter": "My favourite hawker food is…",
+     "followups": [
+      "Where is the best stall?",
+      "When did you last have it?"
+     ]
+    },
+    {
+     "q": "What should we cook for dinner?",
+     "starter": "For dinner we should cook…",
+     "followups": [
+      "What do we need to buy?",
+      "Where should we buy it?"
+     ]
+    },
+    {
+     "q": "How do you make your favourite dish?",
+     "starter": "To make it, first you…",
+     "followups": [
+      "What is the secret ingredient?",
+      "Can you teach me to make it?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "family",
+   "name": "Family",
+   "questions": [
+    {
+     "q": "Have you spoken to the grandchildren this week?",
+     "starter": "This week I spoke to…",
+     "followups": [
+      "What did they tell you?"
+     ]
+    },
+    {
+     "q": "Should we call someone today?",
+     "starter": "Today we should call…",
+     "followups": [
+      "What do you want to tell them?"
+     ]
+    },
+    {
+     "q": "What were we like as children?",
+     "starter": "When you were small, you were…",
+     "followups": [
+      "Who was the noisiest?",
+      "What did we argue about?"
+     ]
+    },
+    {
+     "q": "Who in the family is most like you?",
+     "starter": "The one most like me is…",
+     "followups": [
+      "In what way?"
+     ]
+    },
+    {
+     "q": "Tell me about your wedding day.",
+     "starter": "On our wedding day…",
+     "followups": [
+      "Where was it?",
+      "What food did you serve?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "weather",
+   "name": "Weather & outside",
+   "questions": [
+    {
+     "q": "Is it hot today?",
+     "starter": "Today it feels…",
+     "followups": [
+      "Do you want the fan on?"
+     ]
+    },
+    {
+     "q": "Do you think it will rain?",
+     "starter": "I think it will…",
+     "followups": [
+      "Should we bring an umbrella?"
+     ]
+    },
+    {
+     "q": "What can you see out of the window?",
+     "starter": "Outside I can see…",
+     "followups": [
+      "What colour is it?",
+      "Is it busy out there?"
+     ]
+    },
+    {
+     "q": "Where would you like to go for a walk?",
+     "starter": "I would like to walk to…",
+     "followups": [
+      "What do you like about it?"
+     ]
+    },
+    {
+     "q": "Tell me about the worst storm or flood you remember.",
+     "starter": "The worst storm I remember was…",
+     "followups": [
+      "What did you do?",
+      "How long did it last?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "memories",
+   "name": "Younger days",
+   "questions": [
+    {
+     "q": "Did you like school?",
+     "starter": "At school I was…",
+     "followups": [
+      "What was your best subject?"
+     ]
+    },
+    {
+     "q": "Did you ever ride a motorbike?",
+     "starter": "I rode a…",
+     "followups": [
+      "Where did you ride it?"
+     ]
+    },
+    {
+     "q": "What was your first job?",
+     "starter": "My first job was…",
+     "followups": [
+      "What did you do each day?",
+      "Did you like it?"
+     ]
+    },
+    {
+     "q": "What music did you like when you were young?",
+     "starter": "When I was young I liked…",
+     "followups": [
+      "Can you hum a bit?",
+      "Who was your favourite singer?"
+     ]
+    },
+    {
+     "q": "How did you meet Mum?",
+     "starter": "I met your mum when…",
+     "followups": [
+      "What did you notice first?",
+      "Where was your first outing?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "work",
+   "name": "Work life",
+   "questions": [
+    {
+     "q": "Did you enjoy your work?",
+     "starter": "I enjoyed it because…",
+     "followups": [
+      "What was the best part?"
+     ]
+    },
+    {
+     "q": "Did you work in an office or outside?",
+     "starter": "I worked…",
+     "followups": [
+      "Which did you prefer?"
+     ]
+    },
+    {
+     "q": "What did a normal working day look like?",
+     "starter": "On a normal day I would…",
+     "followups": [
+      "What time did you finish?"
+     ]
+    },
+    {
+     "q": "What was the hardest part of your job?",
+     "starter": "The hardest part was…",
+     "followups": [
+      "How did you manage it?"
+     ]
+    },
+    {
+     "q": "What is the proudest thing you did at work?",
+     "starter": "I was proud when…",
+     "followups": [
+      "Who else knew about it?",
+      "How did it feel?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "places",
+   "name": "Places & travel",
+   "questions": [
+    {
+     "q": "Have you been to Penang?",
+     "starter": "I have been to…",
+     "followups": [
+      "When was that?"
+     ]
+    },
+    {
+     "q": "Beach or hills?",
+     "starter": "I prefer…",
+     "followups": [
+      "Why?"
+     ]
+    },
+    {
+     "q": "Where is your favourite place in KL?",
+     "starter": "My favourite place is…",
+     "followups": [
+      "How has it changed?"
+     ]
+    },
+    {
+     "q": "Where did you take us for holidays when we were small?",
+     "starter": "For holidays we went to…",
+     "followups": [
+      "How did you get there?"
+     ]
+    },
+    {
+     "q": "Tell me about the best trip you ever took.",
+     "starter": "The best trip I took was…",
+     "followups": [
+      "What did you eat there?",
+      "Would you go back?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "news",
+   "name": "News & TV",
+   "questions": [
+    {
+     "q": "Did you watch the news today?",
+     "starter": "Today on the news…",
+     "followups": [
+      "Was it good news or bad?"
+     ]
+    },
+    {
+     "q": "Football or badminton?",
+     "starter": "I like watching…",
+     "followups": [
+      "Who is your favourite player?"
+     ]
+    },
+    {
+     "q": "What is your favourite TV programme?",
+     "starter": "My favourite programme is…",
+     "followups": [
+      "What happened last episode?"
+     ]
+    },
+    {
+     "q": "What did you watch on TV when you were young?",
+     "starter": "When I was young we watched…",
+     "followups": [
+      "Which programme was the best?"
+     ]
+    },
+    {
+     "q": "Explain how life was before mobile phones.",
+     "starter": "Before mobile phones, we…",
+     "followups": [
+      "What was better back then?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hobbies",
+   "name": "Hobbies",
+   "questions": [
+    {
+     "q": "Do you want to play a game later?",
+     "starter": "Later I want to play…",
+     "followups": [
+      "Who should join?"
+     ]
+    },
+    {
+     "q": "Did you water the plants?",
+     "starter": "The plants are…",
+     "followups": [
+      "Which one is your favourite?"
+     ]
+    },
+    {
+     "q": "What hobby did you enjoy most?",
+     "starter": "The hobby I enjoyed most was…",
+     "followups": [
+      "How did you start?"
+     ]
+    },
+    {
+     "q": "What would you like to learn?",
+     "starter": "I would like to learn…",
+     "followups": [
+      "Who could teach you?"
+     ]
+    },
+    {
+     "q": "Explain the rules of a game you know well.",
+     "starter": "In this game, you…",
+     "followups": [
+      "How do you win?",
+      "Can you teach me?"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "festivals",
+   "name": "Festivals",
+   "questions": [
+    {
+     "q": "Which festival is coming up next?",
+     "starter": "The next festival is…",
+     "followups": [
+      "Are we visiting anyone?"
+     ]
+    },
+    {
+     "q": "Do you like fireworks?",
+     "starter": "Fireworks are…",
+     "followups": [
+      "Where did you watch them?"
+     ]
+    },
+    {
+     "q": "What do you like to eat at festival time?",
+     "starter": "At festival time I like…",
+     "followups": [
+      "Who makes it best?"
+     ]
+    },
+    {
+     "q": "Who would you like to visit for the next celebration?",
+     "starter": "I would like to visit…",
+     "followups": [
+      "What will you bring?"
+     ]
+    },
+    {
+     "q": "How were festivals celebrated when you were a child?",
+     "starter": "When I was a child, we…",
+     "followups": [
+      "What did you wear?",
+      "What did you get as a gift?"
+     ]
+    }
+   ]
+  }
  ],
  "recent": []
 }

@@ -107,11 +107,6 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
 
   <article class="card" id="card" aria-live="polite"></article>
 
-  <details id="optsBox" open>
-    <summary>Listening and follow‑up options</summary>
-    <div class="opts" id="opts"></div>
-  </details>
-
   <details id="tipsBox">
     <summary>Tips for whoever is chatting with him</summary>
     <div class="tips">
@@ -355,10 +350,10 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
      ]
     },
     {
-     "q": "Did you get a bonus at work?",
-     "starter": "With my bonus I…",
+     "q": "Were Mondays busy at work?",
+     "starter": "Mondays at work were…",
      "followups": [
-      "What did you buy?"
+      "What made them busy?"
      ]
     },
     {
@@ -369,10 +364,10 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
      ]
     },
     {
-     "q": "What was the best thing you bought with your pay?",
-     "starter": "With my pay I bought…",
+     "q": "What made a good day at work for you?",
+     "starter": "A good day at work was when…",
      "followups": [
-      "Do you still have it?"
+      "What did you do after work?"
      ]
     },
     {
@@ -1841,10 +1836,10 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
    "topic": "work",
    "slot": 2,
    "from": "test day 3 (26 Oct, added 28 Oct)",
-   "q": "Did you get a bonus at work?",
-   "starter": "With my bonus I…",
+   "q": "Were Mondays busy at work?",
+   "starter": "Mondays at work were…",
    "followups": [
-    "What did you buy?"
+    "What made them busy?"
    ]
   },
   {
@@ -1861,10 +1856,10 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
    "topic": "work",
    "slot": 4,
    "from": "test day 3 (26 Oct, added 28 Oct)",
-   "q": "What was the best thing you bought with your pay?",
-   "starter": "With my pay I bought…",
+   "q": "What made a good day at work for you?",
+   "starter": "A good day at work was when…",
    "followups": [
-    "Do you still have it?"
+    "What did you do after work?"
    ]
   },
   {
@@ -2614,24 +2609,10 @@ const favTopic = {id:"fav", name:"★ Favourites"};
 
 let topic = todayTopic, pos = 0, showFollow = false;
 
-// ---- options (saved on this phone) ----
-const prefs = Object.assign({slow: true, auto: false, instant: false}, store.get("talkPrefs3", {}));
-const FOLLOW_DELAY = 15000;   // follow-ups appear after 15 seconds unless "straight away" is on
+// ---- fixed settings ----
+const prefs = {slow: true, auto: false, instant: false};
+const FOLLOW_DELAY = 15000;   // follow-ups appear after 15 seconds
 let followTimer = null;
-const OPTS = [
-  ["slow", "Read slowly", "Slower, clearer voice for copying"],
-  ["auto", "Read each question aloud", "Plays automatically when you tap Next"],
-  ["instant", "Show follow‑ups straight away", "Otherwise they appear after 15 seconds"]
-];
-function renderOpts(){
-  const box = $("opts"); box.innerHTML = "";
-  OPTS.forEach(([k, label, hint]) => {
-    const row = el("div","opt"); const txt = el("span"); txt.appendChild(document.createTextNode(label)); txt.appendChild(el("small",null,hint));
-    const sw = el("button","switch"); sw.id = "opt-" + k; sw.setAttribute("role","switch"); sw.setAttribute("aria-checked", !!prefs[k]); sw.setAttribute("aria-label", label);
-    sw.onclick = () => { prefs[k] = !prefs[k]; store.set("talkPrefs3", prefs); track("option-" + k + "-" + (prefs[k] ? "on" : "off")); renderOpts(); if (k === "instant") { showFollow = prefs.instant || showFollow; render(false); } };
-    row.append(txt, sw); box.appendChild(row);
-  });
-}
 
 // ---- reading aloud with the phone's built-in voice ----
 const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
@@ -2657,18 +2638,16 @@ function speakParts(parts){   // parts: [text, pauseAfterMs]
     const [text, pause] = parts[i];
     const u = new SpeechSynthesisUtterance(text);
     if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = "en-GB";
-    u.rate = prefs.slow ? 0.75 : 0.95; u.pitch = 1;
+    u.rate = 0.75; u.pitch = 1;
     u.onend = () => setTimeout(() => step(i + 1), pause || 0);
     u.onerror = () => { speaking = false; const b2 = $("listen"); if (b2) b2.setAttribute("aria-pressed","false"); };
     speechSynthesis.speak(u);
   };
   step(0);
 }
-function readCard(q){
-  const starter = q.starter.replace(/…\s*$/, "...").replace(/…/g, "...");
-  const parts = [[q.q, 1200], [starter, 0]];
-  if (showFollow && (q.followups || []).length) { parts[1][1] = 2500; parts.push(["Then tell me.", 600]); q.followups.forEach(f => parts.push([f, 900])); }
-  speakParts(parts);
+function readCard(q){   // question, pause, then the starter line; follow-ups are left for him to read
+  const starter = q.starter.replace(/…/g, "...");
+  speakParts([[q.q, 1200], [starter, 0]]);
 }
 let userTapped = false; addEventListener("pointerdown", () => { userTapped = true; }, {once: true});
 
@@ -2741,7 +2720,7 @@ function render(fresh = true){
     const lb = el("button","btn listen"); lb.id = "listen"; lb.setAttribute("aria-pressed","false");
     lb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Listen</span>';
     lb.onclick = () => { if (speaking) { stopSpeaking(); return; } track("listen"); readCard(q); };
-    lr.append(lb, el("span","speed", prefs.slow ? "Slow voice" : "Normal voice"));
+    lr.append(lb);
     card.appendChild(lr);
   }
 
@@ -2756,9 +2735,9 @@ function render(fresh = true){
 
   const a = el("div","actions");
   const back = el("button","btn","Back"); back.id="back"; back.disabled = pos===0;
-  back.onclick = () => { pos--; render(true); maybeAutoRead(); };
+  back.onclick = () => { pos--; render(true); };
   const next = el("button","btn primary", pos===qs.length-1 ? "Finish" : "Next question"); next.id="next";
-  next.onclick = () => { pos++; render(true); maybeAutoRead(); };
+  next.onclick = () => { pos++; render(true); };
   const more = el("button","btn", showFollow ? "Hide follow‑ups" : "Show follow‑ups now"); more.id="more";
   more.onclick = () => { if (showFollow) { showFollow = false; render(false); } else { clearTimeout(followTimer); reveal(); } };
   if (!hasF) more.hidden = true;
@@ -2775,15 +2754,10 @@ function render(fresh = true){
   card.appendChild(a);
 }
 
-function maybeAutoRead(){
-  if (!prefs.auto || !canSpeak) return;
-  const qs = questionsFor(topic); if (pos >= qs.length) return;
-  setTimeout(() => readCard(qs[pos]), 350);
-}
 document.addEventListener("visibilitychange", () => { if (document.hidden) stopSpeaking(); });
 
 $("week").textContent = DATA.label || ("Questions for the week of " + DATA.week);
-renderOpts(); renderThemes(); render(true);
+renderThemes(); render(true);
 </script>
 
 </body></html>
