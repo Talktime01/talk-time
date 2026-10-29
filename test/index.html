@@ -61,6 +61,23 @@ header p{margin:0;color:var(--muted);max-width:62ch}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 200px}
 .btn.star[aria-pressed="true"]{background:var(--sun-soft);border-color:var(--sun)}
 .btn:disabled{opacity:.45;cursor:default}
+.listen-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn.listen{background:var(--surface);border-color:var(--accent);color:var(--accent);display:inline-flex;gap:10px;align-items:center}
+.btn.listen[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn.listen svg{width:24px;height:24px;flex:none}
+.speed{font-size:15px;color:var(--muted)}
+.follow.waiting{display:none}
+@media (prefers-reduced-motion:no-preference){.follow.reveal{animation:fade .6s ease}}
+.wait-hint{font-size:15px;color:var(--muted);margin:0}
+.opts{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:16px;min-width:0}
+.opt span{min-width:0}
+.opt small{display:block;color:var(--muted);font-size:14px}
+.switch{flex:none;width:58px;height:34px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);position:relative;cursor:pointer;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:var(--muted);transition:left .15s}
+.switch[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+.switch[aria-checked="true"]::after{left:27px;background:var(--accent-ink)}
+.switch:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .finish{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .finish p{margin:0;font-size:20px;color:var(--muted)}
 details{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px 20px}
@@ -78,7 +95,7 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
 <div class="wrap">
   <header>
     <span class="week" id="week"></span>
-    <div class="testbar">Test page · daily questions for 3 days · not Dad's live link</div>
+    <div class="testbar">Test page · trying out Listen and timed follow‑ups · not Dad's live link</div>
     <h1>Talk Time with Dad</h1>
     <p>Five questions a topic, starting easy and ending with a story. Read the starter line out loud, then finish it in your own words.</p>
   </header>
@@ -89,6 +106,11 @@ footer{color:var(--muted);font-size:14px;max-width:70ch}
   </section>
 
   <article class="card" id="card" aria-live="polite"></article>
+
+  <details id="optsBox" open>
+    <summary>Listening and follow‑up options</summary>
+    <div class="opts" id="opts"></div>
+  </details>
 
   <details id="tipsBox">
     <summary>Tips for whoever is chatting with him</summary>
@@ -2592,6 +2614,65 @@ const favTopic = {id:"fav", name:"★ Favourites"};
 
 let topic = todayTopic, pos = 0, showFollow = false;
 
+// ---- options (saved on this phone) ----
+const prefs = Object.assign({slow: true, auto: false, instant: false}, store.get("talkPrefs3", {}));
+const FOLLOW_DELAY = 15000;   // follow-ups appear after 15 seconds unless "straight away" is on
+let followTimer = null;
+const OPTS = [
+  ["slow", "Read slowly", "Slower, clearer voice for copying"],
+  ["auto", "Read each question aloud", "Plays automatically when you tap Next"],
+  ["instant", "Show follow‑ups straight away", "Otherwise they appear after 15 seconds"]
+];
+function renderOpts(){
+  const box = $("opts"); box.innerHTML = "";
+  OPTS.forEach(([k, label, hint]) => {
+    const row = el("div","opt"); const txt = el("span"); txt.appendChild(document.createTextNode(label)); txt.appendChild(el("small",null,hint));
+    const sw = el("button","switch"); sw.id = "opt-" + k; sw.setAttribute("role","switch"); sw.setAttribute("aria-checked", !!prefs[k]); sw.setAttribute("aria-label", label);
+    sw.onclick = () => { prefs[k] = !prefs[k]; store.set("talkPrefs3", prefs); track("option-" + k + "-" + (prefs[k] ? "on" : "off")); renderOpts(); if (k === "instant") { showFollow = prefs.instant || showFollow; render(false); } };
+    row.append(txt, sw); box.appendChild(row);
+  });
+}
+
+// ---- reading aloud with the phone's built-in voice ----
+const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+let voice = null, speaking = false, speakJob = 0;
+function pickVoice(){
+  if (!canSpeak) return;
+  const vs = speechSynthesis.getVoices(); if (!vs.length) return;
+  for (const lang of ["en-MY","en-SG","en-GB","en-IN","en-AU","en-US"]) {
+    const v = vs.find(v => v.lang && v.lang.replace("_","-").toLowerCase() === lang.toLowerCase());
+    if (v) { voice = v; return; }
+  }
+  voice = vs.find(v => /^en/i.test(v.lang)) || null;
+}
+if (canSpeak) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function stopSpeaking(){ speakJob++; speaking = false; if (canSpeak) speechSynthesis.cancel(); const b = $("listen"); if (b) b.setAttribute("aria-pressed","false"); }
+function speakParts(parts){   // parts: [text, pauseAfterMs]
+  if (!canSpeak) return;
+  stopSpeaking(); const job = speakJob; speaking = true;
+  const b = $("listen"); if (b) b.setAttribute("aria-pressed","true");
+  const step = i => {
+    if (job !== speakJob) return;
+    if (i >= parts.length) { speaking = false; const b2 = $("listen"); if (b2) b2.setAttribute("aria-pressed","false"); return; }
+    const [text, pause] = parts[i];
+    const u = new SpeechSynthesisUtterance(text);
+    if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = "en-GB";
+    u.rate = prefs.slow ? 0.75 : 0.95; u.pitch = 1;
+    u.onend = () => setTimeout(() => step(i + 1), pause || 0);
+    u.onerror = () => { speaking = false; const b2 = $("listen"); if (b2) b2.setAttribute("aria-pressed","false"); };
+    speechSynthesis.speak(u);
+  };
+  step(0);
+}
+function readCard(q){
+  const starter = q.starter.replace(/…\s*$/, "...").replace(/…/g, "...");
+  const parts = [[q.q, 1200], [starter, 0]];
+  if (showFollow && (q.followups || []).length) { parts[1][1] = 2500; parts.push(["Then tell me.", 600]); q.followups.forEach(f => parts.push([f, 900])); }
+  speakParts(parts);
+}
+let userTapped = false; addEventListener("pointerdown", () => { userTapped = true; }, {once: true});
+
+
 function questionsFor(id){
   if (id === "fav") return Object.values(starred);
   const t = DATA.topics.find(t => t.id === id);
@@ -2608,15 +2689,16 @@ function renderThemes(){
     const name = document.createElement("span"); name.textContent = t.name; b.appendChild(name);
     if (t.id === todayTopic){ const s=document.createElement("span"); s.className="today"; s.textContent="Today"; b.appendChild(s) }
     if (done[DATA.week+"|"+t.id]){ const s=document.createElement("span"); s.className="done"; s.textContent="✓"; s.setAttribute("aria-label","done this week"); b.appendChild(s) }
-    b.onclick = () => { track('topic-'+t.id); topic = t.id; pos = 0; showFollow = false; renderThemes(); render(); };
+    b.onclick = () => { track('topic-'+t.id); topic = t.id; pos = 0; showFollow = false; renderThemes(); render(true); };
     box.appendChild(b);
   });
 }
 
 function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e }
 
-function render(){
-  const card = $("card"); card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+function render(fresh = true){
+  clearTimeout(followTimer); if (fresh) { stopSpeaking(); showFollow = prefs.instant; }
+  const card = $("card"); if (fresh) { card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap"); }
   card.innerHTML = "";
   const qs = questionsFor(topic);
 
@@ -2632,7 +2714,7 @@ function render(){
     f.appendChild(el("h2","q","Well done! That's all five."));
     f.appendChild(el("p",null,"Pick another topic tomorrow, or go again now if he's enjoying it."));
     const again = el("button","btn","Start this topic again"); again.id="again";
-    again.onclick = () => { pos = 0; render(); };
+    again.onclick = () => { pos = 0; render(true); };
     f.appendChild(again);
     card.appendChild(f);
     return;
@@ -2654,19 +2736,32 @@ function render(){
   const st = el("div","starter"); st.appendChild(el("p","label","Read it, then finish it")); st.appendChild(el("div",null,q.starter));
   card.appendChild(st);
 
-  if (showFollow){
-    const f = el("div","follow"); f.appendChild(el("p","label","Keep it going"));
-    const ul = el("ul"); (q.followups||[]).forEach(x => ul.appendChild(el("li",null,x))); f.appendChild(ul);
-    card.appendChild(f);
+  if (canSpeak){
+    const lr = el("div","listen-row");
+    const lb = el("button","btn listen"); lb.id = "listen"; lb.setAttribute("aria-pressed","false");
+    lb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Listen</span>';
+    lb.onclick = () => { if (speaking) { stopSpeaking(); return; } track("listen"); readCard(q); };
+    lr.append(lb, el("span","speed", prefs.slow ? "Slow voice" : "Normal voice"));
+    card.appendChild(lr);
   }
+
+  const hasF = (q.followups||[]).length > 0;
+  const f = el("div","follow" + (showFollow ? "" : " waiting")); f.id = "follow"; f.appendChild(el("p","label","Then tell me…"));
+  const ul = el("ul"); (q.followups||[]).forEach(x => ul.appendChild(el("li",null,x))); f.appendChild(ul);
+  if (hasF) card.appendChild(f);
+  const hint = el("p","wait-hint","More ideas will appear in a moment…"); hint.id = "waitHint";
+  if (hasF && !showFollow) card.appendChild(hint);
+  const reveal = () => { showFollow = true; const ff = $("follow"); if (ff) { ff.classList.remove("waiting"); ff.classList.add("reveal"); } const h = $("waitHint"); if (h) h.remove(); const m = $("more"); if (m) m.textContent = "Hide follow‑ups"; };
+  if (hasF && !showFollow) followTimer = setTimeout(reveal, FOLLOW_DELAY);
 
   const a = el("div","actions");
   const back = el("button","btn","Back"); back.id="back"; back.disabled = pos===0;
-  back.onclick = () => { pos--; showFollow=false; render(); };
+  back.onclick = () => { pos--; render(true); maybeAutoRead(); };
   const next = el("button","btn primary", pos===qs.length-1 ? "Finish" : "Next question"); next.id="next";
-  next.onclick = () => { pos++; showFollow=false; render(); };
-  const more = el("button","btn", showFollow ? "Hide follow‑ups" : "Follow‑up ideas"); more.id="more";
-  more.onclick = () => { showFollow = !showFollow; render(); };
+  next.onclick = () => { pos++; render(true); maybeAutoRead(); };
+  const more = el("button","btn", showFollow ? "Hide follow‑ups" : "Show follow‑ups now"); more.id="more";
+  more.onclick = () => { if (showFollow) { showFollow = false; render(false); } else { clearTimeout(followTimer); reveal(); } };
+  if (!hasF) more.hidden = true;
   const on = !!starred[keyOf(q)];
   const star = el("button","btn star",(on?"★":"☆")+" He liked this one"); star.id="star"; star.setAttribute("aria-pressed",on);
   star.onclick = () => {
@@ -2674,14 +2769,21 @@ function render(){
     else { track('like-'+(DATA.topics.find(t=>t.name===q.topic)||{id:'fav'}).id+'-'+slug(q.q), q.q); } if(!on) starred[keyOf(q)] = {q:q.q, starter:q.starter, followups:q.followups, topic:q.topic, kind:q.kind};
     store.set("talkStarred2",starred);
     if (topic==="fav" && pos >= Object.keys(starred).length) pos = Math.max(0,pos-1);
-    render();
+    render(false);
   };
   a.append(back,next,more,star);
   card.appendChild(a);
 }
 
+function maybeAutoRead(){
+  if (!prefs.auto || !canSpeak) return;
+  const qs = questionsFor(topic); if (pos >= qs.length) return;
+  setTimeout(() => readCard(qs[pos]), 350);
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) stopSpeaking(); });
+
 $("week").textContent = DATA.label || ("Questions for the week of " + DATA.week);
-renderThemes(); render();
+renderOpts(); renderThemes(); render(true);
 </script>
 
 </body></html>
