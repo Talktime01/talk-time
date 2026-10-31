@@ -2610,7 +2610,7 @@ const favTopic = {id:"fav", name:"★ Favourites"};
 let topic = todayTopic, pos = 0, showFollow = false;
 
 // ---- fixed settings ----
-const prefs = {slow: true, auto: false, instant: false};
+const prefs = {slow: true, auto: false, instant: true};   // follow-ups always shown
 const FOLLOW_DELAY = 15000;   // follow-ups appear after 15 seconds
 let followTimer = null;
 
@@ -2750,6 +2750,7 @@ function render(fresh = true){
     if (topic==="fav" && pos >= Object.keys(starred).length) pos = Math.max(0,pos-1);
     render(false);
   };
+  more.hidden = true;   // follow-ups are always visible now
   a.append(back,next,more,star);
   card.appendChild(a);
 }
