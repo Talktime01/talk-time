@@ -1,2 +1,3 @@
 2026-11-01T12:31:33Z weekly update for 2 Nov 2026 done by hand: scheduled run on 1 Nov 11:39Z ended without publishing or logging
 2026-11-08T12:41:41Z weekly update for 9 Nov 2026 done by hand (backup check): scheduled run did not publish
+2026-11-15T12:41:48Z weekly update for 16 Nov 2026 done by hand (backup check): scheduled run did not publish
